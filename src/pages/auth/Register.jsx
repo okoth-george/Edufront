@@ -122,7 +122,7 @@ const Register = () => {
                   value={formData.name}
                   onChange={handleChange}
                   className="w-full pl-10 pr-4 py-2.5 border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-background"
-                  placeholder="John Doe"
+                  placeholder="Enter username"
                   disabled={loading}
                 />
               </div>
@@ -156,7 +156,7 @@ const Register = () => {
                   value={formData.email}
                   onChange={handleChange}
                   className="w-full pl-10 pr-4 py-2.5 border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-background"
-                  placeholder="you@example.com"
+                  placeholder="Enter your email"
                   disabled={loading}
                 />
               </div>
@@ -189,6 +189,21 @@ const Register = () => {
                   onChange={handleChange}
                   className="w-full pl-10 pr-4 py-2.5 border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-background"
                   placeholder="••••••••"
+                  disabled={loading}
+                />
+              </div>
+            </div>
+            <div>
+              <label className ="block text-sm font-medium mb-2">Role</label>
+              <div className="relative">
+                
+                <input
+                  type="text"
+                  name="role"
+                  value={formData.role}
+                  onChange={handleChange}
+                  className="w-full pl-10 pr-4 py-2.5 border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-background"
+                  placeholder="Enter role"
                   disabled={loading}
                 />
               </div>

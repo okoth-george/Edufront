@@ -1,11 +1,11 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:5000/api/auth'; // Replace with your backend URL
+const API_URL = 'http://127.0.0.1:8000/user_auth'; // Replace with your backend URL
 
 export const authService = {
   login: async (email, password) => {
     try {
-      const response = await axios.post(`${API_URL}/login`, {
+      const response = await axios.post(`${API_URL}/login/`, {
         email,
         password,
       });
@@ -17,7 +17,7 @@ export const authService = {
 
   register: async (userData) => {
     try {
-      const response = await axios.post(`${API_URL}/register`, userData);
+      const response = await axios.post(`${API_URL}/register/`, userData);
       return response.data;
     } catch (error) {
       throw error.response?.data || { message: 'Registration failed' };
@@ -26,7 +26,7 @@ export const authService = {
 
   forgotPassword: async (email) => {
     try {
-      const response = await axios.post(`${API_URL}/forgot-password`, { email });
+      const response = await axios.post(`${API_URL}/password-reset/request/`, { email });
       return response.data;
     } catch (error) {
       throw error.response?.data || { message: 'Request failed' };
@@ -35,7 +35,7 @@ export const authService = {
 
   resetPassword: async (token, newPassword) => {
     try {
-      const response = await axios.post(`${API_URL}/reset-password`, {
+      const response = await axios.post(`${API_URL}/password-reset/confirm/`, {
         token,
         newPassword,
       });
