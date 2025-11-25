@@ -40,7 +40,7 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
       <TooltipProvider>
-        <Toaster />
+        <Toaster  />
         <Sonner />
         <BrowserRouter>
           <Routes>
@@ -50,6 +50,7 @@ const App = () => (
             <Route path="/register" element={<Register />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/reset-password/:uid/:token" element={<ResetPassword />} />
 
             {/* Student Routes */}
             <Route

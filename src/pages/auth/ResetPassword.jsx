@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { authService } from '../../services/authService';
 import { toast } from 'sonner';
 import { Lock, ArrowRight } from 'lucide-react';
+import { useParams } from 'react-router-dom';
 
 const ResetPassword = () => {
   const [password, setPassword] = useState('');
@@ -10,7 +11,16 @@ const ResetPassword = () => {
   const [loading, setLoading] = useState(false);
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const token = searchParams.get('token');
+
+  // Support both path params (/reset-password/:uid/:token) and query params
+  // (/reset-password?token=...&email=...)
+  const { uid: paramUid, token: paramToken } = useParams();
+  const queryToken = searchParams.get('token');
+  const queryUid = searchParams.get('uid');
+  const queryEmail = searchParams.get('email');
+
+  const uid = paramUid || queryUid || null;
+  const token = paramToken || queryToken || null;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -30,21 +40,51 @@ const ResetPassword = () => {
       return;
     }
 
+    //if (!token) {
+    //  toast.error('Invalid reset link');
+    //  return;
+    //}
+
     if (!token) {
-      toast.error('Invalid reset link');
+      toast.error('Invalid or missing reset token.');
       return;
     }
 
     setLoading(true);
     try {
-      await authService.resetPassword(token, password);
+      // Prepare payload: backend may expect { uid, token } or { email, token } or { token }
+      const payload = uid
+        ? { uid, token, new_password: password, confirm_password: confirmPassword }
+        : (queryEmail
+          ? { email: queryEmail, token, new_password: password, confirm_password: confirmPassword }
+          : { token, new_password: password, confirm_password: confirmPassword }
+        );
+
+      await authService.resetPassword(payload);
+      
       toast.success('Password reset successful!');
       navigate('/login');
     } catch (error) {
-      toast.error(error.message || 'Failed to reset password');
+      // Improve error handling
+      const msg = error.response?.data?.detail || 
+                  JSON.stringify(error.response?.data) || 
+                  'Failed to reset password';
+      toast.error(msg);
     } finally {
       setLoading(false);
     }
+  
+
+    //setLoading(true);
+    //try {
+    //  await authService.resetPassword(token, password);
+   //   toast.success('Password reset successful!');
+    //  navigate('/login');
+   // } catch (error) {
+   //   toast.error(error.message || 'Failed to reset password');
+   // } finally {
+   ///   setLoading(false);
+   // }
   };
 
   return (

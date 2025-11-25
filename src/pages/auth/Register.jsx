@@ -233,6 +233,16 @@ const Register = () => {
               </Link>
             </p>
           </div>
+           <div className="text-xs text-muted-foreground mt-4">
+              <Link to="/" 
+              className="text-primary hover:text-primary-dark font-medium transition-smooth">
+                Home page
+              </Link>
+              <br />
+              <span>
+              &copy; {new Date().getFullYear()} EduBridge. All rights reserved.
+              </span>
+            </div>
         </div>
       </div>
     </div>

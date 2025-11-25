@@ -28,16 +28,35 @@ const Login = () => {
     setLoading(true);
     try {
       const response = await login(email, password);
+      // Debug/log the response shape to help trace issues where backend logs success
+      // but frontend sees an error
+      // eslint-disable-next-line no-console
+      console.debug('login response', response);
+
       toast.success('Login successful!');
-      
-      // Navigate based on role
-      if (response.user.role === 'student') {
+
+      // Determine the current user from response, context or localStorage
+      const currentUser = response?.user || user || (() => {
+        try {
+          return JSON.parse(localStorage.getItem('user'));
+        } catch (err) {
+          return null;
+        }
+      })();
+
+      // Navigate based on role (defensive checks)
+      if (currentUser && currentUser.role === 'student') {
         navigate('/student/dashboard');
-      } else {
+      } else if (currentUser && currentUser.role) {
         navigate('/sponsor/dashboard');
+      } else {
+        // If role is missing, navigate to a safe default or profile
+        navigate('/');
       }
     } catch (error) {
-      toast.error(error.message || 'Login failed. Please check your credentials.');
+      // authService now throws Error instances with a message, but be defensive
+      const message = error?.message || error?.detail || JSON.stringify(error) || 'Login failed. Please check your credentials.';
+      toast.error(message);
     } finally {
       setLoading(false);
     }
@@ -80,13 +99,14 @@ const Login = () => {
                 <label className="block text-sm font-medium mb-2">Password   </label>
                          
               <div className="relative">
-                
+
                 <input
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="w-full pl-10 pr-4 py-2.5 border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-background"
-                  placeholder="••••••••"
+                  placeholder="••••••••"             
+  
                   disabled={loading}
                 />
               </div>
@@ -124,7 +144,18 @@ const Login = () => {
               <Link to="/register" className="text-primary hover:text-primary-dark font-medium transition-smooth">
                 Sign up
               </Link>
+              
             </p>
+            <div className="text-xs text-muted-foreground mt-4">
+              <Link to="/" 
+              className="text-primary hover:text-primary-dark font-medium transition-smooth">
+                Home page
+              </Link>
+              <br />
+              <span>
+              &copy; {new Date().getFullYear()} EduBridge. All rights reserved.
+              </span>
+            </div>
           </div>
         </div>
       </div>

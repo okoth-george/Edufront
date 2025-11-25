@@ -17,37 +17,56 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     // Check if user is logged in on mount
-    const token = localStorage.getItem('token');
+    //check for the specific 'access' token key you used 
+    const token = localStorage.getItem('access_token');
     const userData = localStorage.getItem('user');
     
     if (token && userData) {
-      setUser(JSON.parse(userData));
+      try{
+        setUser(JSON.parse(userData));
+      } catch (error){
+        console.error("Failed to parse user data",error);
+        localStorage.clear();
+      }
+      
     }
     setLoading(false);
   }, []);
 
   const login = async (email, password) => {
-    const response = await authService.login(email, password);
-    if (response.token) {
-      localStorage.setItem('token', response.token);
+    try{
+      const response = await authService.login(email, password);
+    if (response.access) {
+      //store both tokens
+      localStorage.setItem('access_token', response.access);
+      localStorage.setItem('refresh_token', response.refresh);
+      //store user data
       localStorage.setItem('user', JSON.stringify(response.user));
       setUser(response.user);
     }
     return response;
+
+    } catch (error){
+      throw error;
+    }
+    
   };
 
   const register = async (userData) => {
     const response = await authService.register(userData);
     if (response.token) {
-      localStorage.setItem('token', response.token);
+      localStorage.setItem('access_token', response.access);
+      localStorage.setItem('refresh_token',response.refresh)
       localStorage.setItem('user', JSON.stringify(response.user));
       setUser(response.user);
     }
     return response;
   };
 
+  
   const logout = () => {
-    localStorage.removeItem('token');
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
     localStorage.removeItem('user');
     setUser(null);
   };

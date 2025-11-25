@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://127.0.0.1:8000/user_auth'; // Replace with your backend URL
+const API_URL = 'http://127.0.0.1:8000/api/v1/auth'; // Replace with your backend URL
 
 export const authService = {
   login: async (email, password) => {
@@ -11,7 +11,25 @@ export const authService = {
       });
       return response.data;
     } catch (error) {
-      throw error.response?.data || { message: 'Login failed' };
+      // Normalize server/client errors to an Error with a useful message
+      const serverData = error.response?.data;
+      // Handle Django REST Framework style non_field_errors which often indicate
+      // invalid credentials: { non_field_errors: ["Unable to log in with provided credentials."] }
+      if (serverData && serverData.non_field_errors && Array.isArray(serverData.non_field_errors) && serverData.non_field_errors.length > 0) {
+        // Present a simpler, user-friendly message
+        throw new Error('Invalid email or password');
+      }
+
+      let message = 'Login failed';
+      if (serverData) {
+        if (typeof serverData === 'string') message = serverData;
+        else if (serverData.message) message = serverData.message;
+        else if (serverData.detail) message = serverData.detail;
+        else message = JSON.stringify(serverData);
+      } else if (error.message) {
+        message = error.message;
+      }
+      throw new Error(message);
     }
   },
 
@@ -20,52 +38,105 @@ export const authService = {
       const response = await axios.post(`${API_URL}/register/`, userData);
       return response.data;
     } catch (error) {
-      throw error.response?.data || { message: 'Registration failed' };
+      const serverData = error.response?.data;
+      let message = 'Registration failed';
+      if (serverData) {
+        if (typeof serverData === 'string') message = serverData;
+        else if (serverData.message) message = serverData.message;
+        else if (serverData.detail) message = serverData.detail;
+        else message = JSON.stringify(serverData);
+      } else if (error.message) {
+        message = error.message;
+      }
+      throw new Error(message);
     }
   },
 
   forgotPassword: async (email) => {
     try {
-      const response = await axios.post(`${API_URL}/password-reset/request/`, { email });
+      const response = await axios.post(`${API_URL}/forgot-password/`, { email });
       return response.data;
     } catch (error) {
-      throw error.response?.data || { message: 'Request failed' };
+      const serverData = error.response?.data;
+      let message = 'Request failed';
+      if (serverData) {
+        if (typeof serverData === 'string') message = serverData;
+        else if (serverData.message) message = serverData.message;
+        else if (serverData.detail) message = serverData.detail;
+        else message = JSON.stringify(serverData);
+      } else if (error.message) {
+        message = error.message;
+      }
+      throw new Error(message);
     }
   },
 
-  resetPassword: async (token, newPassword) => {
+  resetPassword: async (payloadOrToken, new_password,confirm_password) => {
     try {
-      const response = await axios.post(`${API_URL}/password-reset/confirm/`, {
-        token,
-        newPassword,
-      });
+      // Accept either an object payload { uid, token, email, newPassword, confirm_password }
+      // or (token, newPassword) arguments for backward compatibility
+      const body = (payloadOrToken && typeof payloadOrToken === 'object' && !Array.isArray(payloadOrToken))
+        ? payloadOrToken
+        : { token: payloadOrToken, new_password ,confirm_password};
+
+      const response = await axios.post(`${API_URL}/confirm-password/`, body);
       return response.data;
     } catch (error) {
-      throw error.response?.data || { message: 'Reset failed' };
+      const serverData = error.response?.data;
+      let message = 'Reset failed';
+      if (serverData) {
+        if (typeof serverData === 'string') message = serverData;
+        else if (serverData.message) message = serverData.message;
+        else if (serverData.detail) message = serverData.detail;
+        else message = JSON.stringify(serverData);
+      } else if (error.message) {
+        message = error.message;
+      }
+      throw new Error(message);
     }
   },
 
   getProfile: async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get(`${API_URL}/profile`, {
+      const response = await axios.get(`${API_URL}/profile/`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       return response.data;
     } catch (error) {
-      throw error.response?.data || { message: 'Failed to fetch profile' };
+      const serverData = error.response?.data;
+      let message = 'Failed to fetch profile';
+      if (serverData) {
+        if (typeof serverData === 'string') message = serverData;
+        else if (serverData.message) message = serverData.message;
+        else if (serverData.detail) message = serverData.detail;
+        else message = JSON.stringify(serverData);
+      } else if (error.message) {
+        message = error.message;
+      }
+      throw new Error(message);
     }
   },
 
   updateProfile: async (profileData) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.put(`${API_URL}/profile`, profileData, {
+      const response = await axios.put(`${API_URL}/profile/`, profileData, {
         headers: { Authorization: `Bearer ${token}` },
       });
       return response.data;
     } catch (error) {
-      throw error.response?.data || { message: 'Failed to update profile' };
+      const serverData = error.response?.data;
+      let message = 'Failed to update profile';
+      if (serverData) {
+        if (typeof serverData === 'string') message = serverData;
+        else if (serverData.message) message = serverData.message;
+        else if (serverData.detail) message = serverData.detail;
+        else message = JSON.stringify(serverData);
+      } else if (error.message) {
+        message = error.message;
+      }
+      throw new Error(message);
     }
   },
 };
