@@ -16,7 +16,9 @@ const SponsorScholarships = () => {
   const fetchScholarships = async () => {
     try {
       const response = await scholarshipService.getSponsorScholarships();
-      setScholarships(response.scholarships || []);
+      console.log("DATA FROM SERVICE:", response);
+      //setScholarships(response.scholarships || []);
+      setScholarships(response || []);
     } catch (error) {
       toast.error('Failed to load scholarships');
     } finally {
@@ -126,7 +128,7 @@ const SponsorScholarships = () => {
 
               <div className="mt-4 pt-4 border-t flex items-center justify-between">
                 <span className="text-sm text-muted-foreground">
-                  Created {new Date(scholarship.createdAt).toLocaleDateString()}
+                  Created {new Date(scholarship.created_at).toLocaleDateString()}
                 </span>
                 <Link
                   to={`/sponsor/applications?scholarship=${scholarship.id}`}

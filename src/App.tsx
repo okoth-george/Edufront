@@ -29,6 +29,8 @@ import CreateScholarship from "./pages/sponsor/CreateScholarship";
 import SponsorScholarships from "./pages/sponsor/SponsorScholarships";
 import SponsorApplications from "./pages/sponsor/SponsorApplications";
 import SponsorProfile from "./pages/sponsor/SponsorProfile";
+import EditScholarship from './pages/sponsor/EditScholarship';
+import Sponsorprofile from "./pages/sponsor/sponsorprofilepage";
 
 // Other Pages
 import LandingPage from "./pages/LandingPage";
@@ -82,6 +84,11 @@ const App = () => (
               <Route path="scholarships" element={<SponsorScholarships />} />
               <Route path="applications" element={<SponsorApplications />} />
               <Route path="profile" element={<SponsorProfile />} />
+             {/* <Route path="edit-scholarship/:id" element={<EditScholarship />} />*/}
+              <Route path="/sponsor/scholarships/:id/edit" element={<EditScholarship />} />
+              <Route path="sponsorprofile" element={<Sponsorprofile />} />
+              
+
             </Route>
 
             {/* 404 Route */}

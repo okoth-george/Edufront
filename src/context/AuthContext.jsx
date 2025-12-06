@@ -16,37 +16,59 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check if user is logged in on mount
-    //check for the specific 'access' token key you used 
-    const token = localStorage.getItem('access_token');
-    const userData = localStorage.getItem('user');
-    
-    if (token && userData) {
-      try{
-        setUser(JSON.parse(userData));
-      } catch (error){
-        console.error("Failed to parse user data",error);
-        localStorage.clear();
+    // On mount verify token with backend. If verification fails, clear stored auth
+    const verify = async () => {
+      const token =
+        localStorage.getItem('access_token') ||
+        localStorage.getItem('token') ||
+        localStorage.getItem('auth_token');
+
+      if (!token) {
+        setLoading(false);
+        return;
       }
-      
-    }
-    setLoading(false);
+
+      try {
+        const profile = await authService.getProfile();
+        // profile may be { user: { ... } } or the user object itself depending on backend
+        const resolvedUser = profile?.user ?? profile;
+        if (resolvedUser) setUser(resolvedUser);
+      } catch (err) {
+        console.warn('Token verification failed — clearing stored auth', err);
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('refresh_token');
+        localStorage.removeItem('token');
+        localStorage.removeItem('auth_token');
+        localStorage.removeItem('user');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    verify();
   }, []);
 
   const login = async (email, password) => {
-    try{
+    try {
       const response = await authService.login(email, password);
-    if (response.access) {
-      //store both tokens
-      localStorage.setItem('access_token', response.access);
-      localStorage.setItem('refresh_token', response.refresh);
-      //store user data
-      localStorage.setItem('user', JSON.stringify(response.user));
-      setUser(response.user);
-    }
-    return response;
 
-    } catch (error){
+      const token = response?.access || response?.token || response?.access_token || response?.auth_token;
+      const refresh = response?.refresh || response?.refresh_token;
+      const userFromResp = response?.user || response?.data || response?.profile || null;
+
+      if (token) {
+        localStorage.setItem('access_token', token);
+      }
+      if (refresh) {
+        localStorage.setItem('refresh_token', refresh);
+      }
+      if (userFromResp) {
+        localStorage.setItem('user', JSON.stringify(userFromResp));
+        setUser(userFromResp);
+      }
+
+      return { token, user: userFromResp, raw: response };
+    } catch (error) {
       throw error;
     }
     
@@ -54,13 +76,19 @@ export const AuthProvider = ({ children }) => {
 
   const register = async (userData) => {
     const response = await authService.register(userData);
-    if (response.token) {
-      localStorage.setItem('access_token', response.access);
-      localStorage.setItem('refresh_token',response.refresh)
-      localStorage.setItem('user', JSON.stringify(response.user));
-      setUser(response.user);
+
+    const token = response?.access || response?.token || response?.access_token || response?.auth_token;
+    const refresh = response?.refresh || response?.refresh_token;
+    const userFromResp = response?.user || response?.data || response?.profile || null;
+
+    if (token) localStorage.setItem('access_token', token);
+    if (refresh) localStorage.setItem('refresh_token', refresh);
+    if (userFromResp) {
+      localStorage.setItem('user', JSON.stringify(userFromResp));
+      setUser(userFromResp);
     }
-    return response;
+
+    return { token, user: userFromResp, raw: response };
   };
 
   

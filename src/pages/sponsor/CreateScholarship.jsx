@@ -12,6 +12,7 @@ const CreateScholarship = () => {
     amount: '',
     deadline: '',
     category: '',
+    criteria: '',
     requirements: '',
     description: '',
   });
@@ -73,7 +74,7 @@ const CreateScholarship = () => {
                   Award Amount ($) <span className="text-destructive">*</span>
                 </label>
                 <div className="relative">
-                  <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                  <DollarSign className="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                   <input
                     type="number"
                     name="amount"
@@ -103,6 +104,7 @@ const CreateScholarship = () => {
                   />
                 </div>
               </div>
+              
             </div>
 
             <div>
@@ -150,6 +152,22 @@ const CreateScholarship = () => {
                 required
               />
             </div>
+            <div>
+                <label className="block text-sm font-medium mb-2">Criteria for getting the scholarship <span className="text-destructive">*</span></label>
+                <div className="relative">
+                  
+                  <textarea
+                    
+                    name="criteria"
+                    value={formData.criteria}
+                    rows={3}
+                    onChange={handleChange}
+                    className="w-full px-4  py-2.5 border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-background"
+                    placeholder="Specify the criteria that applicants must meet to be eligible for this scholarship..."
+                    required
+                  />
+                </div>
+              </div>
 
             <div>
               <label className="block text-sm font-medium mb-2">Requirements & Eligibility</label>

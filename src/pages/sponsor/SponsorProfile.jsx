@@ -7,8 +7,8 @@ const SponsorProfile = () => {
   const [profile, setProfile] = useState({
     name: '',
     email: '',
-    phone: '',
-    organization: '',
+    contact_number: '',
+    organization_name: '',
     website: '',
     description: '',
   });
@@ -18,7 +18,7 @@ const SponsorProfile = () => {
   useEffect(() => {
     fetchProfile();
   }, []);
-
+ 
   const fetchProfile = async () => {
     try {
       const response = await authService.getProfile();
@@ -29,6 +29,25 @@ const SponsorProfile = () => {
       setLoading(false);
     }
   };
+/*
+  const fetchProfile = async () => {
+    try {
+      const token = localStorage.getItem('access_token');
+      const response = await axios.get('http://127.0.0.1:8000/api/v1/sponsors/sponsor/profile/me/', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setProfile(response.data); // User has a profile!
+    } catch (error) {
+      if (error.response && error.response.status === 404) {
+        // User has NO profile. keep profile as null.
+        setProfile(null); 
+      } else {
+        toast.error("Error loading profile");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };*/
 
   const handleChange = (e) => {
     setProfile({ ...profile, [e.target.name]: e.target.value });
@@ -101,8 +120,8 @@ const SponsorProfile = () => {
                 <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                 <input
                   type="tel"
-                  name="phone"
-                  value={profile.phone}
+                  name="contact_number"
+                  value={profile.contact_number}
                   onChange={handleChange}
                   className="w-full pl-10 pr-4 py-2.5 border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-background"
                   placeholder="+1 (555) 000-0000"
@@ -134,8 +153,8 @@ const SponsorProfile = () => {
               <label className="block text-sm font-medium mb-2">Organization Name</label>
               <input
                 type="text"
-                name="organization"
-                value={profile.organization}
+                name="organization_name"
+                value={profile.organization_name}
                 onChange={handleChange}
                 className="w-full px-4 py-2.5 border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-background"
                 placeholder="Your Organization"

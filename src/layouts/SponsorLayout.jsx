@@ -13,6 +13,7 @@ const SponsorLayout = () => {
     { name: 'Create Scholarship', path: '/sponsor/create', icon: Plus },
     { name: 'My Scholarships', path: '/sponsor/scholarships', icon: BookOpen },
     { name: 'Applications', path: '/sponsor/applications', icon: FileText },
+    //{ name: 'Profile', path: '/sponsor/sponsorprofile', icon: User },
     { name: 'Profile', path: '/sponsor/profile', icon: User },
   ];
 

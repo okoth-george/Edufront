@@ -96,10 +96,61 @@ export const authService = {
     }
   },
 
+
+  createProfile: async (profileData) => {
+    try {
+      // 1. Get the token (checking all possible storage keys)
+      const token =
+        localStorage.getItem('access_token') ||
+        localStorage.getItem('token') ||
+        localStorage.getItem('auth_token');
+
+      // 2. Make the POST request
+      // Note: We use the same URL as the GET request, but the method is POST
+      const response = await axios.post(
+        'http://127.0.0.1:8000/api/v1/sponsors/sponsor/profile/create/', 
+        profileData, 
+        {
+          headers: { 
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json' // Good practice for POST requests
+          },
+        }
+      );
+
+      return response.data;
+    } catch (error) {
+      // 3. Standardized Error Handling (Same as your other functions)
+      const serverData = error.response?.data;
+      let message = 'Failed to create profile';
+      
+      if (serverData) {
+        if (typeof serverData === 'string') message = serverData;
+        else if (serverData.message) message = serverData.message;
+        else if (serverData.detail) message = serverData.detail;
+        else message = JSON.stringify(serverData);
+      } else if (error.message) {
+        message = error.message;
+      }
+      
+      throw new Error(message);
+    }
+  },
+
   getProfile: async () => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await axios.get(`${API_URL}/profile/`, {
+      // Support multiple token key names to be tolerant of different backends
+      const token =
+        localStorage.getItem('access_token') ||
+        localStorage.getItem('token') ||
+        localStorage.getItem('auth_token');
+        /*
+      const response = await axios.get(`${API_URL}/sponsor/profile/create/`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      */
+      
+      const response = await axios.get('http://127.0.0.1:8000/api/v1/sponsors/sponsor/profile/me/', {
         headers: { Authorization: `Bearer ${token}` },
       });
       return response.data;
@@ -118,10 +169,16 @@ export const authService = {
     }
   },
 
+
+
   updateProfile: async (profileData) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('access_token') || localStorage.getItem('token') || localStorage.getItem('auth_token');
+      /*
       const response = await axios.put(`${API_URL}/profile/`, profileData, {
+        headers: { Authorization: `Bearer ${token}` },
+      });*/
+      const response = await axios.put('http://127.0.0.1:8000/api/v1/sponsors/sponsor/profile/me/', profileData, {
         headers: { Authorization: `Bearer ${token}` },
       });
       return response.data;
@@ -140,3 +197,4 @@ export const authService = {
     }
   },
 };
+

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { toast } from 'sonner';
@@ -17,11 +17,14 @@ const Register = () => {
   const { register, user } = useAuth();
   const navigate = useNavigate();
 
-  // Redirect if already logged in
-  if (user) {
-    navigate(user.role === 'student' ? '/student/dashboard' : '/sponsor/dashboard');
-    return null;
-  }
+  // Redirect if already logged in — run navigation inside an effect
+  useEffect(() => {
+    if (user) {
+      navigate(user.role === 'student' ? '/student/dashboard' : '/sponsor/dashboard');
+    }
+  }, [user, navigate]);
+
+  if (user) return null;
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
