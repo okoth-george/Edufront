@@ -27,17 +27,7 @@ export const scholarshipService = {
     }
   },
 
-  // Get single scholarship
-  /*
-  getScholarshipById: async (id) => {
-    try {
-      const response = await axios.get(`${API_URL}/${id}`);
-      return response.data;
-    } catch (error) {
-      throw error.response?.data || { message: 'Failed to fetch scholarship' };
-    }
-  },
-  */
+  
 
   getScholarshipById: async (id) => {
     try {

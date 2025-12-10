@@ -14,6 +14,7 @@ const SponsorProfile = () => {
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [isNewProfile, setIsNewProfile] = useState(false);
 
   useEffect(() => {
     fetchProfile();
@@ -22,45 +23,58 @@ const SponsorProfile = () => {
   const fetchProfile = async () => {
     try {
       const response = await authService.getProfile();
-      setProfile(response.profile || {});
+      // Backend might return the profile in different shapes:
+      // - a user/profile object directly
+      // - { user: { ... } }
+      // - { profile: { ... } }
+      const resolved = response?.user ?? response?.profile ?? response ?? null;
+      if (resolved) {
+        setProfile(resolved);
+        setIsNewProfile(false); // We will UPDATE later
+      } else {
+        // No profile returned -> treat as new profile
+        setIsNewProfile(true);
+      }
     } catch (error) {
-      toast.error('Failed to load profile');
+      const status = error?.response?.status;
+      if (status === 404) {
+        setIsNewProfile(true); // Enable POST mode
+        setProfile({ name: '', email: '', contact_number: '', organization_name: '', website: '', description: '' });
+      } else {
+        const msg = error?.message || error?.response?.data || 'Failed to load profile';
+        toast.error(msg);
+      }
+      
     } finally {
       setLoading(false);
     }
   };
-/*
-  const fetchProfile = async () => {
-    try {
-      const token = localStorage.getItem('access_token');
-      const response = await axios.get('http://127.0.0.1:8000/api/v1/sponsors/sponsor/profile/me/', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      setProfile(response.data); // User has a profile!
-    } catch (error) {
-      if (error.response && error.response.status === 404) {
-        // User has NO profile. keep profile as null.
-        setProfile(null); 
-      } else {
-        toast.error("Error loading profile");
-      }
-    } finally {
-      setLoading(false);
-    }
-  };*/
+
+  
 
   const handleChange = (e) => {
     setProfile({ ...profile, [e.target.name]: e.target.value });
   };
 
+ 
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSaving(true);
     try {
-      await authService.updateProfile(profile);
-      toast.success('Profile updated successfully!');
+      if (isNewProfile) {
+        // SCENARIO 1: Create new (POST)
+        await authService.createProfile(profile);
+        toast.success('Profile created successfully!');
+        setIsNewProfile(false); // Next time, it will be an update
+      } else {
+        // SCENARIO 2: Update existing (PUT/PATCH)
+        await authService.updateProfile(profile);
+        toast.success('Profile updated successfully!');
+      }
     } catch (error) {
-      toast.error(error.message || 'Failed to update profile');
+      console.error(error);
+      toast.error(error.message || 'Failed to save profile');
     } finally {
       setSaving(false);
     }
@@ -109,7 +123,7 @@ const SponsorProfile = () => {
                   name="email"
                   value={profile.email}
                   onChange={handleChange}
-                  className="w-full pl-10 pr-4 py-2.5 border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-background"
+                  className="w-full pl-12 pr-4 py-2.5 border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-background"
                   placeholder="your@email.com"
                 />
               </div>
@@ -182,7 +196,7 @@ const SponsorProfile = () => {
             className="bg-gradient-primary text-white px-8 py-3 rounded-lg font-medium hover:opacity-90 transition-smooth disabled:opacity-50 flex items-center"
           >
             <Save className="h-5 w-5 mr-2" />
-            {saving ? 'Saving...' : 'Save Changes'}
+            {saving ? 'Saving...' : (isNewProfile ? 'Create Profile' : 'Save Changes')}
           </button>
         </div>
       </form>

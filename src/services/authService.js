@@ -155,6 +155,9 @@ export const authService = {
       });
       return response.data;
     } catch (error) {
+      if (error.response && error.response.status === 404) {
+      return null; // Return null implies "No profile found, create a new one"
+      }
       const serverData = error.response?.data;
       let message = 'Failed to fetch profile';
       if (serverData) {
