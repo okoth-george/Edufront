@@ -1,11 +1,13 @@
 import axios from 'axios';
+import { Import } from 'lucide-react';
 
-const API_URL = 'http://127.0.0.1:8000/api/v1/auth'; // Replace with your backend URL
+//const API_URL = 'http://127.0.0.1:8000/api/v1/auth'; // Replace with your backend URL
+const API_URL= import.meta.env.VITE_API_URL;
 
 export const authService = {
   login: async (email, password) => {
     try {
-      const response = await axios.post(`${API_URL}/login/`, {
+      const response = await axios.post(`${API_URL}/auth/login/`, {
         email,
         password,
       });
@@ -35,7 +37,7 @@ export const authService = {
 
   register: async (userData) => {
     try {
-      const response = await axios.post(`${API_URL}/register/`, userData);
+      const response = await axios.post(`${API_URL}/auth/register/`, userData);
       return response.data;
     } catch (error) {
       const serverData = error.response?.data;
@@ -54,7 +56,7 @@ export const authService = {
 
   forgotPassword: async (email) => {
     try {
-      const response = await axios.post(`${API_URL}/forgot-password/`, { email });
+      const response = await axios.post(`${API_URL}/auth/forgot-password/`, { email });
       return response.data;
     } catch (error) {
       const serverData = error.response?.data;
@@ -79,7 +81,7 @@ export const authService = {
         ? payloadOrToken
         : { token: payloadOrToken, new_password ,confirm_password};
 
-      const response = await axios.post(`${API_URL}/confirm-password/`, body);
+      const response = await axios.post(`${API_URL}/auth/confirm-password/`, body);
       return response.data;
     } catch (error) {
       const serverData = error.response?.data;
@@ -107,8 +109,8 @@ export const authService = {
 
       // 2. Make the POST request
       // Note: We use the same URL as the GET request, but the method is POST
-      const response = await axios.post(
-        'http://127.0.0.1:8000/api/v1/sponsors/sponsor/profile/create/', 
+      const response = await axios.post( `${API_URL}/sponsors/sponsor/profile/create/`,
+        //'http://127.0.0.1:8000/api/v1/sponsors/sponsor/profile/create/', 
         profileData, 
         {
           headers: { 
@@ -150,7 +152,7 @@ export const authService = {
       });
       */
       
-      const response = await axios.get('http://127.0.0.1:8000/api/v1/sponsors/sponsor/profile/me/', {
+      const response = await axios.get(`${API_URL}/sponsors/sponsor/profile/me/`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       return response.data;
@@ -181,7 +183,7 @@ export const authService = {
       const response = await axios.put(`${API_URL}/profile/`, profileData, {
         headers: { Authorization: `Bearer ${token}` },
       });*/
-      const response = await axios.put('http://127.0.0.1:8000/api/v1/sponsors/sponsor/profile/me/', profileData, {
+      const response = await axios.put(`${API_URL}/sponsors/sponsor/profile/me/`, profileData, {
         headers: { Authorization: `Bearer ${token}` },
       });
       return response.data;
